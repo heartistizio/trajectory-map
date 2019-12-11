@@ -33,16 +33,23 @@ interface Trip {
 interface Route {
   code: string;
   waypoints: Waypoint[];
-  routes: Trip[];
+  trips: Trip[];
 }
 
 const api =
   "pk.eyJ1IjoiaGVhcnRpc3RpemlvIiwiYSI6ImNrM3JlbGJrMTA5NmozY3BzaHM4ZHNuNXMifQ.e0ggjo3DcGdZJZYKOaZbGA";
 
-const assembleQueryUrl = (stops: string[]) =>
-  `https://api.mapbox.com/directions/v5/mapbox/driving/${stops.join(
+const assembleQueryUrl = (stops: string[], type: string) =>
+  `https://api.mapbox.com/optimized-trips/v1/mapbox/${type}/${stops.join(
+    ";"
+  )}?overview=full&steps=true&geometries=geojson&source=first&access_token=${api}`;
+
+const cs = (stops: string[], type: string) =>
+  `https://api.mapbox.com/directions/v5/mapbox/${type}/${stops.join(
     "%3B"
   )}.json?&geometries=geojson&access_token=${api}`;
 
-export const fetchRoute = async (stops: string[]): Promise<Route> =>
-  (await fetch(assembleQueryUrl(stops))).json();
+export const fetchRoute = async (
+  stops: string[],
+  type: string
+): Promise<Route> => (await fetch(assembleQueryUrl(stops, type))).json();

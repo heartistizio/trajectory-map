@@ -11,6 +11,7 @@ const App: React.FC = () => {
   // haaack
   const [didFetch, setDidFetch] = useState(false);
   const [profile, setProfile] = useState("religious");
+  const [type, setType] = useState("walking");
 
   const fetchApi = async () => {
     const paths = await fetchPath(profile);
@@ -18,13 +19,14 @@ const App: React.FC = () => {
     const routes = await fetchRoute(
       paths.map(
         path =>
-          `${path.location.lon.toFixed(2)}%2C${path.location.lat.toFixed(2)}`
-      )
+          `${path.location.lon.toFixed(2)},${path.location.lat.toFixed(2)}`
+      ),
+      type
     );
 
     setStops(paths);
 
-    setRoutes(routes.routes[0].geometry.coordinates.map(([a, b]) => [b, a]));
+    setRoutes(routes.trips[0].geometry.coordinates.map(([a, b]) => [b, a]));
   };
 
   useEffect(() => {
@@ -39,6 +41,11 @@ const App: React.FC = () => {
     fetchApi();
   };
 
+  const changeType = (type: string) => {
+    setType(type);
+    fetchApi();
+  };
+
   return (
     <div className="App">
       <button onClick={() => changeProfile("tourist")}>Tourist</button>
@@ -46,7 +53,7 @@ const App: React.FC = () => {
       <button onClick={() => changeProfile("food")}>Food fanatic</button>
       <button onClick={() => changeProfile("guest")}>Guest</button>
       <Leaflet
-        zoom={11}
+        zoom={13}
         position={stops && [stops[0].location.lat, stops[0].location.lon]}
         routes={routes}
         locations={stops}
